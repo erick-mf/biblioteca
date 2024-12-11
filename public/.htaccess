@@ -1,0 +1,30 @@
+RewriteEngine On
+
+Options -Indexes
+
+ServerSignature Off
+
+RewriteRule ^$ index.php?controller=home&action=index [NC,L]
+RewriteRule ^registrarse$ index.php?controller=usuario&action=register [NC,L]
+RewriteRule ^login$ index.php?controller=usuario&action=login [NC,L]
+RewriteRule ^logout$ index.php?controller=usuario&action=logout [NC,L]
+RewriteRule ^dashboard$ index.php?controller=usuario&action=dashboard [NC,L]
+
+# Rutas para los dashboards según el rol
+RewriteRule ^admin/dashboard$ index.php?controller=admin&action=dashboard [NC,L]
+RewriteRule ^bibliotecario/dashboard$ index.php?controller=bibliotecario&action=dashboard [NC,L]
+RewriteRule ^lector/dashboard$ index.php?controller=lector&action=dashboard [NC,L]
+
+# Rutas para el controlador de libros
+RewriteRule ^libros$ index.php?controller=libro&action=index [NC,L]
+RewriteRule ^libros/crear$ index.php?controller=libro&action=crear [NC,L]
+RewriteRule ^libros/store$ index.php?controller=libro&action=store [NC,L]
+RewriteRule ^libros/editar/([0-9]+)$ index.php?controller=libro&action=edit&id=$1 [NC,L]
+RewriteRule ^libros/update/([0-9]+)$ index.php?controller=libro&action=update&id=$1 [NC,L]
+RewriteRule ^libros/([0-9]+)$ index.php?controller=libro&action=show&id=$1 [NC,L]
+RewriteRule ^libros/delete/([0-9]+)$ index.php?controller=libro&action=delete&id=$1 [NC,L]
+
+<Files .htaccess>
+order allow,deny
+deny from all
+</files>
