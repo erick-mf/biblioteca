@@ -6,7 +6,7 @@ use App\Lib\Pages;
 use App\Services\UsuarioService;
 use Exception;
 
-class UsuarioController
+class AuthController
 {
     private UsuarioService $usuarioService;
 
@@ -37,38 +37,25 @@ class UsuarioController
                 $result = $this->usuarioService->login($correo, $clave);
 
                 if ($result['success']) {
-                    // Login exitoso
-                    session_start();
                     $_SESSION['user_id'] = $result['user']->id_usuario();
                     $_SESSION['user_name'] = $result['user']->nombre();
                     $_SESSION['user_rol'] = $result['user']->rol();
 
-                    // Redirigir según el rol del usuario
-                    if ($_SESSION['user_rol'] === 'administrador') {
-                        header('Location: /dashboard'); // Redirigir al dashboard del administrador
-                    } elseif ($_SESSION['user_rol'] === 'bibliotecario') {
-                        header('Location: /bibliotecario/dashboard'); // Redirigir al dashboard del bibliotecario
-                    } else {
-                        header('Location: /dashboard'); // Redirigir al dashboard del lector
-                    }
+                    header('Location: /dashboard');
                     exit;
                 } else {
-                    // Login fallido
                     $errors['general'] = $result['error'];
                 }
             }
 
-            // Si hay errores, volver a mostrar el formulario con los errores
             $this->page->render('login', ['errors' => $errors]);
         } else {
-            // Mostrar formulario de login
             $this->page->render('login', []);
         }
     }
 
     public function register(): void
     {
-        $userRole = $_SESSION['user_rol'] ?? 'guest';
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $userData = [
@@ -83,25 +70,20 @@ class UsuarioController
             'rol' => $_POST['user']['rol'] ?? 'lector',
             ];
 
-            // Si el usuario no es administrador, forzar el rol a 'lector'
-            if ($userRole !== 'administrador') {
-                $userData['rol'] = 'lector';
-            }
-
             try {
                 $result = $this->usuarioService->register($userData);
                 if ($result['success']) {
-                    // Redirigir al login después de un registro exitoso
-                    header('Location: /login');
+
+                    header('Location: /dashboard');
                     exit;
                 } else {
-                    $this->page->render('register', ['errors' => $result['errors'], 'userRole' => $userRole]);
+                    $this->page->render('register', ['errors' => $result['errors']]);
                 }
             } catch (Exception $e) {
-                $this->page->render('register', ['error' => $e->getMessage(), 'userRole' => $userRole]);
+                $this->page->render('register', ['error' => $e->getMessage()]);
             }
         } else {
-            $this->page->render('register', ['userRole' => $userRole]);
+            $this->page->render('register', []);
         }
     }
 
@@ -112,13 +94,19 @@ class UsuarioController
         exit;
     }
 
-    public function dashboard():void
-    {
-        session_start();
-        if (!isset($_SESSION['user_name'])) {
-            header('Location: /login');
-            exit;
-        }
-        $this->page->render("user/dashboard", []);
-    }
+    // public function dashboard():void
+    // {
+    //     if (!isset($_SESSION['user_name'])) {
+    //         header('Location: /login');
+    //         exit;
+    //     }
+    //
+    //     if(isset($_SESSION["user_rol"]) && $_SESSION["user_rol"] === "administrador") {
+    //         $this->page->render("admin/dashboard", []);
+    //     }elseif(isset($_SESSION["user_rol"]) && $_SESSION["user_rol"] === "bibliotecario") {
+    //         $this->page->render("bibliotecario/dashboard", []);
+    //     }else{
+    //         $this->page->render("lector/dashboard", []);
+    //     }
+    // }
 }

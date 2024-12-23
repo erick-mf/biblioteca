@@ -43,12 +43,10 @@ class UsuarioService
             return ['success' => false, 'errors' => $errors];
         }
 
-        // Asegurarse de que solo los administradores puedan crear bibliotecarios
         if ($userData['rol'] === 'bibliotecario' && !$this->isAdmin()) {
             return ['success' => false, 'errors' => ['rol' => 'No tienes permisos para crear bibliotecarios']];
         }
 
-        // Verificar si el email ya está registrado
         if ($this->usuarioRepository->findByEmail($userData['email'])) {
             return ['success' => false, 'errors' => ['email' => 'El email ya está registrado']];
         }

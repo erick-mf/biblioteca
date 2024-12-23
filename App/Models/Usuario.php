@@ -154,12 +154,10 @@ class Usuario
     {
         $errors = [];
 
-        // Validar nombre
         if (!SanitValidForm::validString($this->nombre)) {
             $errors['nombre'] = "El nombre es inválido.";
         }
 
-        // Validar apellidos
         if (!SanitValidForm::validString($this->apellido1)) {
             $errors['apellido1'] = "El primer apellido es inválido.";
         }
@@ -167,22 +165,18 @@ class Usuario
             $errors['apellido2'] = "El segundo apellido es inválido.";
         }
 
-        // Validar DNI
         if (!SanitValidForm::validDNI($this->dni)) {
             $errors['dni'] = "El DNI es inválido.";
         }
 
-        // Validar email
         if (!SanitValidForm::validEmail($this->email)) {
             $errors['email'] = "El correo electrónico es inválido.";
         }
 
-        // Validar teléfono (opcional)
         if (!empty($this->telefono) && !SanitValidForm::validTel($this->telefono)) {
             $errors['telefono'] = "El teléfono debe tener 9 dígitos.";
         }
 
-        // Validar contraseña
         if (!SanitValidForm::validPassword($this->clave)) {
             $errors['clave'] = "La contraseña debe tener al menos 8 caracteres.";
         }
