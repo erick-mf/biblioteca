@@ -10,28 +10,36 @@
 require_once '../vendor/autoload.php';
 require_once '../App/config/config.php';
 
-use App\Controllers\FrontController;
+use App\Controllers\AdminController;
+use App\Controllers\BibliotecarioController;
+use App\Controllers\HomeController;
+use App\Controllers\AuthController;
+use App\Lib\Router;
+use App\Middlewares\LectorMiddleware;
+use App\Middlewares\BibliotecarioMiddleware;
+use App\Middlewares\AdminMiddleware;
 use Dotenv\Dotenv;
-use Dotenv\Exception\InvalidPathException;
-use Dotenv\Exception\ValidationException;
 
 try {
-    // Crea una instancia de Dotenv y carga las variables de entorno desde el archivo .env
     $dotenv = Dotenv::createImmutable(__DIR__.'/..');
-    $dotenv->load();
+    $dotenv->safeLoad();
 
-    // Verifica que las variables requeridas estén presentes y no estén vacías
-    $dotenv->required(['SERVER', 'DB', 'USERNAME', 'PASSWORD'])->notEmpty();
+    session_start();
 
-    // Llama al método principal del controlador frontal
-    FrontController::main();
-} catch (InvalidPathException $e) {
-    // Maneja el caso donde el archivo .env no se encuentra
-    exit('Error: No se encontró el archivo .env. '.$e->getMessage());
-} catch (ValidationException $e) {
-    // Maneja el caso donde faltan variables requeridas en el archivo .env
-    exit('Error: Faltan variables requeridas en el archivo .env. '.$e->getMessage());
+    Router::addMiddleware('admin', AdminMiddleware::class);
+    Router::addMiddleware('bibliotecario', BibliotecarioMiddleware::class);
+    Router::addMiddleware('usuario', LectorMiddleware::class);
+
+    Router::get("", [HomeController::class, "index"]);
+    Router::get("login", [AuthController::class, "login"]);
+    Router::post("login", [AuthController::class, "login"]);
+    Router::get("logout", [AuthController::class, "logout"]);
+    Router::get("registrarse", [AuthController::class, "register"]);
+    Router::post("registrarse", [AuthController::class, "register"]);
+    Router::get("admin/dashboard", [AdminController::class, "dashboard"]);
+    Router::get("bibliotecario/dashboard", [BibliotecarioController::class, "dashboard"]);
+
+    Router::dispatch();
 } catch (Exception $e) {
-    // Maneja cualquier otro error inesperado
     exit('Error inesperado: '.$e->getMessage());
 }
